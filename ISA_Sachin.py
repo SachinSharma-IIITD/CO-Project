@@ -68,6 +68,7 @@ reg = {
 }
 
 var = dict()
+label = dict()
 
 
 def flag_overflow(set: bool):
