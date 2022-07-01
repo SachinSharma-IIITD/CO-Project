@@ -314,7 +314,7 @@ def dollarColon(new_line: str):
     if flag==0:
         pass
     elif flag==1:
-        if ':' not in new_list[0] and new_list[0][-1]!=':':
+        if ':' not in new_list[0] or new_list[0][-1]!=':':
             print(errors['17'])
             exit()
         instr = new_list[1]
@@ -322,11 +322,11 @@ def dollarColon(new_line: str):
             if opcode[instr]['type'] != 'B':
                 print(errors['20'])
                 exit()
-        if '$' not in new_list[-1] and new_list[-1][0]!='$' and not(new_list[-1][1:].isnumeric()) and not(255>=int(new_list[-1][1:])>=0):
+        if '$' not in new_list[-1] or new_list[-1][0]!='$' or not(new_list[-1][1:].isnumeric()) or not(255>=int(new_list[-1][1:])>=0):
             print(errors['20'])
             exit()
         elif flag==2:
-            if ':' not in new_list[0] and new_list[0][-1]!=':':
+            if ':' not in new_list[0] or new_list[0][-1]!=':':
                 print(errors['17'])
                 exit()
         elif flag ==3:
@@ -335,7 +335,7 @@ def dollarColon(new_line: str):
                 if opcode[instr]['type'] != 'B':
                     print(errors['20'])
                     exit()
-            if '$' not in new_list[-1] and new_list[-1][0]!='$' and not(new_list[-1][1:].isnumeric()) and not(255>=int(new_list[-1][1:])>=0):
+            if '$' not in new_list[-1] or new_list[-1][0]!='$' or not(new_list[-1][1:].isnumeric()) or not(255>=int(new_list[-1][1:])>=0):
                 print(errors['20'])
                 exit()
 
@@ -386,47 +386,48 @@ def main():
         Symbolerror(line)
 
         line = line.split(' ')
-
+        # print(line)
+        
         # Var check
         if line[0] == 'var':
             if is_var == 0:
-                print(errors['6'])
+                print('6')
                 exit()
             else:
                 if len(line) == 2 and line[1].isalnum():       # Var check
                     var_name = line[1]
-                    
+
                     if var_name in vars:
-                        print(errors['10'])
+                        print('10')
                         exit()    # Redefine vars
 
                     vars[line[1]] = 0
                     continue
                 else:
-                    print(errors['general'])
+                    print('general')
                     exit()
 
         # Label check
-        if ':' in line:
+        if ':' in " ".join(line):
             if ':' not in line[0] or ':' != line[0][-1]:
-                print(errors['17'])
+                print('17')
                 exit()    # : at wrong pos
-            if ':' in line[1:]:
-                print(errors['9'])
+            if ':' in ' '.join(line[1:]):
+                print('9')
                 exit()    # label redefined
             if len(line[0]) <= 1:
-                print(errors['8'])
+                print('8')
                 exit()    # empty label
 
             label_name = line[0][:-1]
             if not label_name.isalnum():
-                print(errors['8'])
+                print('8')
                 exit()    # Invalid label name
-            
+
             if label_name in labels:
-                print(errors['9'])
+                print('9')
                 exit()    # redefine lables
-                
+
             labels[label_name] = counter
             counter += 1
             instructions.append(line[1:])
@@ -435,17 +436,18 @@ def main():
         # Blank Line
         if line == '\n':
             continue
-        
+
         # Invalid instr
         # if line[0] not in opcode:
-        #     print(errors['0'])
+        #     print('0')
         #     exit()
-        
+
         instructions.append(line)
         counter += 1
 
     for v in vars:
         vars[v] = counter
         counter += 1
+
 
 main()
