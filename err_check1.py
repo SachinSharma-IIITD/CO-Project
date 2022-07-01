@@ -9,12 +9,12 @@ def check_params(instr, param_list):
 
     if type == 'A':
         for i in range(len(param_list)):
-            if param_list[i] not in reg:
+            if param_list[i] not in reg or param_list[i] == 'FLAGS':
                 print(errors["1"])
                 exit()
-        
+
     elif type == 'B':
-        if param_list[0] not in reg:
+        if param_list[0] not in reg or param_list[0] == 'FLAGS':
             print(errors["1"])
             exit()
 
@@ -38,12 +38,14 @@ def check_params(instr, param_list):
 
     elif type == 'C':
         for i in range(len(param_list)):
-            if param_list[0] not in reg:
+            if param_list[i] not in reg:
                 print(errors["1"])
                 exit()
+            if param_list[1] == 'FLAGS':
+                print(errors['12'])
         
     elif type == 'D':
-        if param_list[0] not in reg:
+        if param_list[0] not in reg or param_list[0] == 'FLAGS':
             print(errors["1"])
             exit()
         
