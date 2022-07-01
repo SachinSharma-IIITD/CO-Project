@@ -4,45 +4,23 @@ errors = dict()
 vars = dict()
 labels = dict()
 
-# Not checking for halt
-
 def check_params(instr, param_list):
     type = opcode[instr]['type']
 
     if type == 'A':
-        np = 3
-
-        if len(param_list) > np:
-            print(errors['18'])
-            exit(1)
-        
-        if len(param_list) < np:
-            print(errors["19"])
-            exit(1)
-        
-        for i in range(np):
+        for i in range(len(param_list)):
             if param_list[i] not in reg:
                 print(errors["1"])
-                exit(1)
+                exit()
         
     elif type == 'B':
-        np = 2
-        
-        if len(param_list) > np:
-            print(errors['18'])
-            exit(1)
-        
-        if len(param_list) < np:
-            print(errors["19"])
-            exit(1)
-        
         if param_list[0] not in reg:
             print(errors["1"])
-            exit(1)
+            exit()
 
         if '$' not in param_list[1]:
-            print(errors[20])
-            exit(1)
+            print(errors['20'])
+            exit()
 
         if len(param_list[1]) <= 1:
             print(errors['4'])
@@ -59,65 +37,35 @@ def check_params(instr, param_list):
             exit()
 
     elif type == 'C':
-        np = 2
-
-        if len(param_list) > np:
-            print(errors['18'])
-            exit(1)
-        
-        if len(param_list) < np:
-            print(errors["19"])
-            exit(1)
-        
-        for i in range(np):
+        for i in range(len(param_list)):
             if param_list[0] not in reg:
                 print(errors["1"])
-                exit(1)
+                exit()
         
     elif type == 'D':
-        np = 2
-
-        if len(param_list) > np:
-            print(errors['18'])
-            exit(1)
-        
-        if len(param_list) < np:
-            print(errors["19"])
-            exit(1)
-        
         if param_list[0] not in reg:
             print(errors["1"])
-            exit(1)
+            exit()
         
         arg = param_list[1]
 
         if arg not in vars:
-            if arg in labels:       # uncomment only if labels dict complete till its call
+            if arg in labels:
                 print(errors['11'])
-                exit(1)
+                exit()
             else:
                 print(errors['7'])
                 exit()
 
     elif type == 'E':
-        np = 1
-
-        if len(param_list) > np:
-            print(errors['18'])
-            exit(1)
-        
-        if len(param_list) < np:
-            print(errors["19"])
-            exit(1)
-
         arg = param_list[0]
 
-        if arg not in labels:       # Uncomment full block if labels dict complete till its call
+        if arg not in labels:
             if arg in vars:
                 print(errors['11'])
-                exit(1)
+                exit()
             else:
                 print(errors['8'])
-                exit(1)
+                exit()
 
 
