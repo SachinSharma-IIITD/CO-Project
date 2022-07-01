@@ -339,30 +339,29 @@ def dollarColon(new_line: str):
                 print(errors['20'])
                 exit()
 
-def check_4_flags(instr, param_list):
-    if len(param_list)>1 and param_list[1] in reg:
-        if instr!='mov' and 'FLAGS' not in param_list:
-            pass
-        elif instr!='mov' and 'FLAGS' in param_list:
-            print(errors['12'])
-            exit()
-        elif instr=='mov' and 'FLAGS' not in param_list:
-            pass
-        elif instr=='mov' and 'FLAGS'==param_list[0]:
-            pass
-        elif instr=='mov' and 'FLAGS'==param_list[1]:
-            print(errors['12'])
-            exit()
-        elif instr=='FLAGS':
-            print(errors['12'])
-            exit()
-    else:
-        print('Either ' + errors['19'] + ' or ' + errors['1'])
-        exit()
+# def check_4_flags(instr, param_list):
+#     if len(param_list)>1 and param_list[1] in reg:
+#         if instr!='mov' and 'FLAGS' not in param_list:
+#             pass
+#         elif instr!='mov' and 'FLAGS' in param_list:
+#             print(errors['12'])
+#             exit()
+#         elif instr=='mov' and 'FLAGS' not in param_list:
+#             pass
+#         elif instr=='mov' and 'FLAGS'==param_list[0]:
+#             pass
+#         elif instr=='mov' and 'FLAGS'==param_list[1]:
+#             print(errors['12'])
+#             exit()
+#         elif instr=='FLAGS':
+#             print(errors['12'])
+#             exit()
+#     else:
+#         print('Either ' + errors['19'] + ' or ' + errors['1'])
+#         exit()
 
 
-def lengthcheck_and_nameinvalid(new_line :str):
-    new_list = [i for i in new_line.split(' ')]
+def lengthcheck_and_nameinvalid(new_list):
     if new_list[0] in opcode:
         if len(new_list)!=inputlengtherror[opcode[new_list[0]]['type']]:
             print(errors['18'])
@@ -371,12 +370,81 @@ def lengthcheck_and_nameinvalid(new_line :str):
         print(errors['0'])
         exit()
 
+
+var = dict()
+labels = dict()
+instructions = []
+
+def check_params(instr, param_list):
+    type = opcode[instr]['type']
+
+    if type == 'A':
+        for i in range(len(param_list)):
+            if param_list[i] not in reg or param_list[i] == 'FLAGS':
+                print(errors["1"])
+                exit()
+
+    elif type == 'B':
+        if param_list[0] not in reg or param_list[0] == 'FLAGS':
+            print(errors["1"])
+            exit()
+
+        if '$' not in param_list[1]:
+            print(errors['20'])
+            exit()
+
+        if len(param_list[1]) <= 1:
+            print(errors['4'])
+            exit()
+        
+        imm = eval(param_list[1][1:])
+
+        if type(imm) != int:
+            print(errors['13'])
+            exit()
+
+        if imm > 255 or imm < 0:
+            print(errors['14'])
+            exit()
+
+    elif type == 'C':
+        for i in range(len(param_list)):
+            if param_list[i] not in reg:
+                print(errors["1"])
+                exit()
+            if param_list[1] == 'FLAGS':
+                print(errors['12'])
+        
+    elif type == 'D':
+        print(param_list)
+
+        if param_list[0] not in reg or param_list[0] == 'FLAGS':
+            print(errors["1"])
+            exit()
+        
+        arg = param_list[1]
+
+        if arg not in var:
+            if arg in labels:
+                print(errors['11'])
+                exit()
+            else:
+                print(errors['7'])
+                exit()
+
+    elif type == 'E':
+        arg = param_list[0]
+
+        if arg not in labels:
+            if arg in var:
+                print(errors['11'])
+                exit()
+            else:
+                print(errors['8'])
+                exit()
+
 def main():
     prog = [i.strip() for i in sys.stdin.read().split('\n')]
-
-    vars = dict()
-    labels = dict()
-    instructions = []
 
     is_var = 1
 
@@ -397,11 +465,11 @@ def main():
                 if len(line) == 2 and line[1].isalnum():       # Var check
                     var_name = line[1]
 
-                    if var_name in vars:
+                    if var_name in var:
                         print('10')
-                        exit()    # Redefine vars
+                        exit()    # Redefine var
 
-                    vars[line[1]] = 0
+                    var[line[1]] = 0
                     continue
                 else:
                     print('general')
@@ -445,75 +513,15 @@ def main():
         instructions.append(line)
         counter += 1
 
-    for v in vars:
-        vars[v] = counter
+    for v in var:
+        var[v] = counter
         counter += 1
 
-def check_params(instr, param_list):
-    type = opcode[instr]['type']
+    print(var)
 
-    if type == 'A':
-        for i in range(len(param_list)):
-            if param_list[i] not in reg or param_list[i] == 'FLAGS':
-                print(errors["1"])
-                exit()
-
-    elif type == 'B':
-        if param_list[0] not in reg or param_list[0] == 'FLAGS':
-            print(errors["1"])
-            exit()
-
-        if '$' not in param_list[1]:
-            print(errors['20'])
-            exit()
-
-        if len(param_list[1]) <= 1:
-            print(errors['4'])
-            exit()
-        
-        imm = eval(param_list[1][1:])
-
-        if type(imm) != int:
-            print(errors['13'])
-            exit()
-
-        if imm > 255 or imm < 0:
-            print(errors['14'])
-            exit()
-
-    elif type == 'C':
-        for i in range(len(param_list)):
-            if param_list[i] not in reg:
-                print(errors["1"])
-                exit()
-            if param_list[1] == 'FLAGS':
-                print(errors['12'])
-        
-    elif type == 'D':
-        if param_list[0] not in reg or param_list[0] == 'FLAGS':
-            print(errors["1"])
-            exit()
-        
-        arg = param_list[1]
-
-        if arg not in vars:
-            if arg in labels:
-                print(errors['11'])
-                exit()
-            else:
-                print(errors['7'])
-                exit()
-
-    elif type == 'E':
-        arg = param_list[0]
-
-        if arg not in labels:
-            if arg in vars:
-                print(errors['11'])
-                exit()
-            else:
-                print(errors['8'])
-                exit()
+    for line in instructions:
+        lengthcheck_and_nameinvalid(line)
+        check_params(line[0], line[1:])
 
 
 main()
