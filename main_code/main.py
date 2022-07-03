@@ -238,7 +238,6 @@ def err_check(line):
         print(f'ERROR: (Line {counter_raw})', errors['general'])
         return True
 
-
     var_flag = 0
 
     # Label check
@@ -305,14 +304,14 @@ def main():
         variables[v] = pc
         pc += 1
 
-    if prog[-1] != 'hlt':
+    if instructions[-1] != ['hlt']:
         print(f'ERROR:', errors['16'])
         error_flag = True
 
     else:
-        for line in prog[:-1]:
+        for line in instructions[:-1]:
             if 'hlt' in line:
-                idx = prog.index(line)
+                idx = prog.index(' '.join(line))
                 print(f'ERROR: (Line {idx+1})', errors['15'])
                 error_flag = True
 
