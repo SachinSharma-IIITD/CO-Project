@@ -127,9 +127,8 @@ def Load(given_list : list,memory):
     left = 8-len(memory)
     unused = ''
     for i in range(left):
-        memory = memory + '0'
-    memory = str(memory)
-    final = opcode1 + reg1 + memory
+        unused = unused + '0'
+    final = opcode1 + reg1 +unused +memory
     return final
 
 def Store(given_list : list,memory):
@@ -138,19 +137,16 @@ def Store(given_list : list,memory):
     left = 8-len(memory)
     unused = ''
     for i in range(left):
-        memory = memory + '0'
-    memory = str(memory)
-    final = opcode1 + reg1 + memory
+        unused = unused + '0'
+    final = opcode1 + reg1 +unused +memory
     return final
 
 def UnconditionalJump(given_list : list,memory):
     opcode1 = opcode['jmp']['opcode']
     unused = '000'
     left = 8-len(memory)
-    unused = ''
     for i in range(left):
-        memory = memory + '0'
-    memory = str(memory)
+        unused = unused + '0'
     final = opcode1 + unused + memory
     return final
 
@@ -158,10 +154,8 @@ def JumpIfLessThan(given_list : list,memory):
     opcode1 = opcode['jlt']['opcode']
     unused = '000'
     left = 8-len(memory)
-    unused = ''
     for i in range(left):
-        memory = memory + '0'
-    memory = str(memory)
+        unused = unused + '0'
     final = opcode1 + unused + memory
     return final
 
@@ -169,10 +163,8 @@ def JumpIfgreaterThan(given_list : list,memory):
     opcode1 = opcode['jgt']['opcode']
     unused = '000'
     left = 8-len(memory)
-    unused = ''
     for i in range(left):
-        memory = memory + '0'
-    memory = str(memory)
+        unused = unused + '0'
     final = opcode1 + unused + memory
     return final
 
@@ -180,10 +172,8 @@ def JumpIfEqual(given_list : list,memory):
     opcode1 = opcode['je']['opcode']
     unused = '000'
     left = 8-len(memory)
-    unused = ''
     for i in range(left):
-        memory = memory + '0'
-    memory = str(memory)
+        unused = unused + '0'
     final = opcode1 + unused + memory
     return final
 
