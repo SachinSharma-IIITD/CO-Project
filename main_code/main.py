@@ -352,7 +352,7 @@ def err_check(line):
 
 def main():
     prog = [i.strip() for i in sys.stdin.read().split('\n')]
-    print()     # Comment for final run
+    # print()     # Comment for final run
 
     global counter_raw, pc, error_flag
     error_flag = False
@@ -380,6 +380,7 @@ def main():
                 error_flag = True
 
     print_binary(error_flag)
+    print()
 
 
 main()
