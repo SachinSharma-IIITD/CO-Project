@@ -89,7 +89,7 @@ errors = {'0': 'Instruction Name is Invalid!',
           '13': 'Immediate Value is not an Integer(Whole Number)!',
           '14': 'Immediate Value is not in range [0,255]',
           '15': 'Halt Instruction is called In-between the program!',
-          '16': 'Missing Halt Instruction in the program!',
+          '16': 'Halt instruction not at last line!',
           '17': '":" in wrong position in definition of Labels!',
           '18': 'No. of parameters not valid!',
           '20': '"$" missing in definition of immediate!',
@@ -105,4 +105,4 @@ pc = 0
 # pc changes after exec of instr => pc shows current line index, not that of next line
 
 var_flag = 1
-error_flag = 0
+error_flag = False

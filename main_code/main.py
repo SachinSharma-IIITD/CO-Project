@@ -1,5 +1,6 @@
 import sys
 from globals import *
+from print_machine import *
 
 
 def has_symbol_error(line: str) -> bool:
@@ -86,11 +87,18 @@ def has_length_or_name_error(line):
             return False
 
     else:
+        if '\t' in ' '.join(line):
+            print(f'ERROR: (Line {counter_raw})', errors['general'])
+            return True
+
+        # print(line[0])
         print(f'ERROR: (Line {counter_raw})', errors['0'])
         return True
 
 
 def is_register(param):
+    global reg
+
     if param in reg:
         return True
     else:
@@ -155,6 +163,9 @@ def has_imm_error(arg):
 def has_param_error(instr, param_list):
     type = opcode[instr]['type']
 
+    if instr == 'mov' and '$' in ' '.join(param_list):
+        type = chr(ord(type)-1)
+
     if type == 'A':
 
         for arg in param_list:
@@ -164,11 +175,13 @@ def has_param_error(instr, param_list):
                     return True
 
                 else:
-                    return False
+                    pass
 
             else:                               # arg must be a reg
                 print(f'ERROR: (Line {counter_raw})', errors['1'])
                 return True
+
+        return False
 
 # ----------------------------------------------------------------------------------------
 
@@ -223,7 +236,7 @@ def has_param_error(instr, param_list):
 
     elif type == 'D':
 
-        arg2 = param_list[0]
+        arg1 = param_list[0]
         arg2 = param_list[1]
 
         if not is_register(arg1):               # arg1 must be reg
@@ -278,16 +291,16 @@ def err_check(line):
                 return False
 
             else:
-                print(errors['general'])
+                print(f'ERROR: (Line {counter_raw})', errors['general'])
                 return True
 
     if 'var' in line[0]:
         print(f'ERROR: (Line {counter_raw})', errors['general'])
         return True
 
-    # Blank Line
-    if line == '\n':
-        return False
+    # # Blank Line
+    # if ' '.join(line) == '\n':
+    #     return False
 
     var_flag = 0
 
@@ -339,19 +352,34 @@ def err_check(line):
 
 def main():
     prog = [i.strip() for i in sys.stdin.read().split('\n')]
-    print()
+    print()     # Comment for final run
 
-    global counter_raw, pc
+    global counter_raw, pc, error_flag
+    error_flag = False
 
     for line in prog:
         counter_raw += 1
 
         if err_check(line):
-            error_flag = 1
+            error_flag = True
+            continue
 
     for v in variables:
         variables[v] = pc
         pc += 1
+
+    if prog[-1] != 'hlt':
+        print(f'ERROR:', errors['16'])
+        error_flag = True
+
+    else:
+        for line in prog[:-1]:
+            if 'hlt' in line:
+                idx = prog.index(line)
+                print(f'ERROR: (Line {idx+1})', errors['15'])
+                error_flag = True
+
+    print_binary(error_flag)
 
 
 main()
