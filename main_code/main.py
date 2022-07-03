@@ -12,69 +12,6 @@ def has_symbol_error(line: str) -> bool:
     return False
 
 
-def dollarColon(new_line: str):
-    new_list = [i for i in new_line.split(' ')]
-    flag = 0
-    if ':' and '$' in new_line:
-        flag = 1
-    elif ':' in new_line:
-        flag = 2
-    elif '$' in new_line:
-        flag = 3
-
-    if flag == 0:
-        pass
-    elif flag == 1:
-        if ':' not in new_list[0] or new_list[0][-1] != ':':
-            print(f'ERROR: (Line {counter_raw})', errors['17'])
-            return
-        instr = new_list[1]
-        if instr in opcode:
-            if opcode[instr]['type'] != 'B':
-                print(f'ERROR: (Line {counter_raw})', errors['20'])
-                return
-        if '$' not in new_list[-1] or new_list[-1][0] != '$' or not(new_list[-1][1:].isnumeric()) or not(255 >= int(new_list[-1][1:]) >= 0):
-            print(f'ERROR: (Line {counter_raw})', errors['20'])
-            return
-        elif flag == 2:
-            if ':' not in new_list[0] or new_list[0][-1] != ':':
-                print(f'ERROR: (Line {counter_raw})', errors['17'])
-                return
-        elif flag == 3:
-            instr = new_list[0]
-            if instr in opcode:
-                if opcode[instr]['type'] != 'B':
-                    print(f'ERROR: (Line {counter_raw})', errors['20'])
-                    return
-            if '$' not in new_list[-1] or new_list[-1][0] != '$' or not(new_list[-1][1:].isnumeric()) or not(255 >= int(new_list[-1][1:]) >= 0):
-                print(f'ERROR: (Line {counter_raw})', errors['20'])
-                return
-
-
-""" 
-def check_4_flags(instr, param_list):
-    if len(param_list)>1 and param_list[1] in reg:
-        if instr!='mov' and 'FLAGS' not in param_list:
-            pass
-        elif instr!='mov' and 'FLAGS' in param_list:
-            print(f'ERROR: (Line {counter_raw})', errors['12'])
-            return
-        elif instr=='mov' and 'FLAGS' not in param_list:
-            pass
-        elif instr=='mov' and 'FLAGS'==param_list[0]:
-            pass
-        elif instr=='mov' and 'FLAGS'==param_list[1]:
-            print(f'ERROR: (Line {counter_raw})', errors['12'])
-            return
-        elif instr=='FLAGS':
-            print(f'ERROR: (Line {counter_raw})', errors['12'])
-            return
-    else:
-        print('Either ' + f'ERROR: (Line {counter_raw})', errors['19'] + ' or ' + f'ERROR: (Line {counter_raw})', errors['1'])
-        return
- """
-
-
 def has_length_or_name_error(line):
     if line[0] in opcode:
         instr = line[0]
@@ -266,6 +203,9 @@ def has_param_error(instr, param_list):
 def err_check(line):
     global counter_raw, pc, var_flag
 
+    if line == '':
+        return False
+
     if has_symbol_error(line):
         return True
 
@@ -298,9 +238,6 @@ def err_check(line):
         print(f'ERROR: (Line {counter_raw})', errors['general'])
         return True
 
-    # # Blank Line
-    # if ' '.join(line) == '\n':
-    #     return False
 
     var_flag = 0
 

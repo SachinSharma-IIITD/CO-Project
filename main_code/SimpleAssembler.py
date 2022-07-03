@@ -607,6 +607,9 @@ def has_param_error(instr, param_list):
 def err_check(line):
     global counter_raw, pc, var_flag
 
+    if line == '':
+        return False
+
     if has_symbol_error(line):
         return True
 
@@ -638,10 +641,7 @@ def err_check(line):
     if 'var' in line[0]:
         print(f'ERROR: (Line {counter_raw})', errors['general'])
         return True
-
-    # # Blank Line
-    # if ' '.join(line) == '\n':
-    #     return False
+        
 
     var_flag = 0
 
