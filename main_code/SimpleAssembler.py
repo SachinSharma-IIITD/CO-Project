@@ -389,19 +389,19 @@ def print_binary(error_flag):
 
             elif line[0] == 'jmp':
                 print(UnconditionalJump(
-                    line[1:], converter(str(variables[line[1]]))))
+                    line[1:], converter(str(labels[line[1]]))))
 
             elif line[0] == 'jlt':
                 print(JumpIfLessThan(line[1:], converter(
-                    str(variables[line[1]]))))
+                    str(labels[line[1]]))))
 
             elif line[0] == 'jgt':
                 print(JumpIfgreaterThan(
-                    line[1:], converter(str(variables[line[1]]))))
+                    line[1:], converter(str(labels[line[1]]))))
 
             elif line[0] == 'je':
                 print(JumpIfEqual(line[1:], converter(
-                    str(variables[line[1]]))))
+                    str(labels[line[1]]))))
 
             elif line[0] == 'hlt':
                 print('0101000000000000')
@@ -693,7 +693,7 @@ def err_check(line):
 
 def main():
     prog = [i.strip() for i in sys.stdin.read().split('\n')]
-    # print()     # Comment for final run
+    print()     # Comment for final run
 
     global counter_raw, pc, error_flag
     error_flag = False

@@ -36,16 +36,16 @@ def print_binary(error_flag):
                 print(Store(line[1:], converter(str(variables[line[2]]))))
             elif line[0] == 'jmp':
                 print(UnconditionalJump(
-                    line[1:], converter(str(variables[line[1]]))))
+                    line[1:], converter(str(labels[line[1]]))))
             elif line[0] == 'jlt':
                 print(JumpIfLessThan(line[1:], converter(
-                    str(variables[line[1]]))))
+                    str(labels[line[1]]))))
             elif line[0] == 'jgt':
                 print(JumpIfgreaterThan(
-                    line[1:], converter(str(variables[line[1]]))))
+                    line[1:], converter(str(labels[line[1]]))))
             elif line[0] == 'je':
                 print(JumpIfEqual(line[1:], converter(
-                    str(variables[line[1]]))))
+                    str(labels[line[1]]))))
             elif line[0] == 'hlt':
                 print('0101000000000000')
 
