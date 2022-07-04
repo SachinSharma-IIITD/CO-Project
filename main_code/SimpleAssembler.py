@@ -693,7 +693,7 @@ def err_check(line):
 
 def main():
     prog = [i.strip() for i in sys.stdin.read().split('\n')]
-    print()     # Comment for final run
+    # print()     # Comment for final run
 
     global counter_raw, pc, error_flag
     error_flag = False
@@ -709,19 +709,19 @@ def main():
         variables[v] = pc
         pc += 1
 
-    if prog[-1] != 'hlt':
+    if instructions[-1] != ['hlt']:
         print(f'ERROR:', errors['16'])
         error_flag = True
 
     else:
-        for line in prog[:-1]:
+        for line in instructions[:-1]:
             if 'hlt' in line:
-                idx = prog.index(line)
+                idx = prog.index(' '.join(line))
                 print(f'ERROR: (Line {idx+1})', errors['15'])
                 error_flag = True
 
     print_binary(error_flag)
-    print()
+    # print()
 
 
 main()
