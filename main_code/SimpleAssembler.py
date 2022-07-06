@@ -43,21 +43,21 @@ opcode = {
 }
 
 reg = {
-    'R0':    {'addr': '000',
+    'r0':    {'addr': '000',
               'data': 0},
-    'R1':    {'addr': '001',
+    'r1':    {'addr': '001',
               'data': 0},
-    'R2':    {'addr': '010',
+    'r2':    {'addr': '010',
               'data': 0},
-    'R3':    {'addr': '011',
+    'r3':    {'addr': '011',
               'data': 0},
-    'R4':    {'addr': '100',
+    'r4':    {'addr': '100',
               'data': 0},
-    'R5':    {'addr': '101',
+    'r5':    {'addr': '101',
               'data': 0},
-    'R6':    {'addr': '110',
+    'r6':    {'addr': '110',
               'data': 0},
-    'FLAGS': {'addr': '111',
+    'flags': {'addr': '111',
               'data': [0 for i in range(16)]}
 }
 
@@ -75,7 +75,7 @@ instr_length = {
 errors = {'0': 'Instruction Name is Invalid!',
           '1': 'Register Name is Invalid!',
           '2': 'Punctuation Error (except ":" and "$")!',
-          '3': '"$" symbol in Instruction (other than type B)!',
+          '3': 'Illegal use of "$" symbol',
           '4': '"$" symbol is not followed by an immediate numerical value!',
           '5': 'Label is empty!',
           '6': 'Variables not declared at Beginning!',
@@ -91,6 +91,7 @@ errors = {'0': 'Instruction Name is Invalid!',
           '16': 'Halt instruction not at last line!',
           '17': '":" in wrong position in definition of Labels!',
           '18': 'No. of parameters not valid!',
+          '19': 'Illegal use of keyword',
           '20': '"$" missing in definition of immediate!',
           'general': 'general syntax error'}
 
@@ -105,6 +106,11 @@ pc = 0
 
 var_flag = 1
 error_flag = False
+
+err_lines = []
+
+
+# ************************** Converter funcs ************************************************
 
 
 def converter(num1, A=10, B=2):
@@ -337,6 +343,9 @@ def halt():
     return '0101000000000000'
 
 
+# ************************** Print Binary ************************************************
+
+
 def print_binary(error_flag):
     if not error_flag:
 
@@ -392,29 +401,21 @@ def print_binary(error_flag):
                     line[1:], converter(str(labels[line[1]]))))
 
             elif line[0] == 'jlt':
-                print(JumpIfLessThan(line[1:], converter(
-                    str(labels[line[1]]))))
+                print(JumpIfLessThan(
+                    line[1:], converter(str(labels[line[1]]))))
 
             elif line[0] == 'jgt':
                 print(JumpIfgreaterThan(
                     line[1:], converter(str(labels[line[1]]))))
 
             elif line[0] == 'je':
-                print(JumpIfEqual(line[1:], converter(
-                    str(labels[line[1]]))))
+                print(JumpIfEqual(line[1:], converter(str(labels[line[1]]))))
 
             elif line[0] == 'hlt':
                 print('0101000000000000')
 
 
-def has_symbol_error(line: str) -> bool:
-    symbols = '!@#%^&*()_+-=~`{}[];"\'<>,.?/\|'
-    for i in symbols:
-        if i in line:
-            print(f'ERROR: (Line {counter_raw})', errors['2'])
-            return True
-    return False
-
+# ************************** Main ********************************************************
 
 def has_length_or_name_error(line):
     if line[0] in opcode:
@@ -422,6 +423,7 @@ def has_length_or_name_error(line):
 
         if len(line) != instr_length[opcode[instr]['type']]:
             print(f'ERROR: (Line {counter_raw})', errors['18'])
+            err_lines.append(counter_raw)
             return True
 
         else:
@@ -430,10 +432,12 @@ def has_length_or_name_error(line):
     else:
         if '\t' in ' '.join(line):
             print(f'ERROR: (Line {counter_raw})', errors['general'])
+            err_lines.append(counter_raw)
             return True
 
         # print(line[0])
         print(f'ERROR: (Line {counter_raw})', errors['0'])
+        err_lines.append(counter_raw)
         return True
 
 
@@ -447,7 +451,7 @@ def is_register(param):
 
 
 def is_flags(param):
-    if param == 'FLAGS':
+    if param == 'FLAGS'.lower():
         return True
     else:
         return False
@@ -460,9 +464,11 @@ def has_var_error(v):
     else:
         if v in labels:
             print(f'ERROR: (Line {counter_raw})', errors['11'])
+            err_lines.append(counter_raw)
             return True
         else:
             print(f'ERROR: (Line {counter_raw})', errors['7'])
+            err_lines.append(counter_raw)
             return True
 
 
@@ -473,29 +479,47 @@ def has_label_error(l):
     else:
         if l in variables:
             print(f'ERROR: (Line {counter_raw})', errors['11'])
+            err_lines.append(counter_raw)
             return True
         else:
             print(f'ERROR: (Line {counter_raw})', errors['8'])
+            err_lines.append(counter_raw)
             return True
 
 
-def has_imm_error(arg):
+def has_imm_error(arg: str):
     if '$' not in arg:                  # arg must have $
         print(f'ERROR: (Line {counter_raw})', errors['20'])
+        err_lines.append(counter_raw)
+        return True
+
+    if '$' != arg[0]:                      # $ must be first symbol
+        print(f'ERROR: (Line {counter_raw})', errors['3'])
+        err_lines.append(counter_raw)
         return True
 
     if len(arg) <= 1:                   # imm empty
         print(f'ERROR: (Line {counter_raw})', errors['4'])
+        err_lines.append(counter_raw)
         return True
 
-    imm = eval(arg[1:])
+    imm: str = arg[1:]
 
-    if type(imm) != int:                # imm must be int
+    if not imm.isdigit():                # imm must be int
         print(f'ERROR: (Line {counter_raw})', errors['13'])
+        err_lines.append(counter_raw)
+        return True
+
+    try:
+        imm = int(imm)
+    except Exception:
+        print(f'ERROR: (Line{counter_raw})', errors['general'])
+        err_lines.append(counter_raw)
         return True
 
     if imm > 255 or imm < 0:            # imm out of range
         print(f'ERROR: (Line {counter_raw})', errors['14'])
+        err_lines.append(counter_raw)
         return True
 
     return False
@@ -513,6 +537,7 @@ def has_param_error(instr, param_list):
             if is_register(arg):
                 if is_flags(arg):               # illegal use of flags
                     print(f'ERROR: (Line {counter_raw})', errors['12'])
+                    err_lines.append(counter_raw)
                     return True
 
                 else:
@@ -520,6 +545,7 @@ def has_param_error(instr, param_list):
 
             else:                               # arg must be a reg
                 print(f'ERROR: (Line {counter_raw})', errors['1'])
+                err_lines.append(counter_raw)
                 return True
 
         return False
@@ -533,10 +559,12 @@ def has_param_error(instr, param_list):
 
         if not is_register(arg1):               # arg1 must be reg
             print(f'ERROR: (Line {counter_raw})', errors["1"])
+            err_lines.append(counter_raw)
             return True
 
         if is_flags(arg1):                      # illegal use of flags
             print(f'ERROR: (Line {counter_raw})', errors['12'])
+            err_lines.append(counter_raw)
             return True
 
         # check if imm is correct
@@ -553,22 +581,26 @@ def has_param_error(instr, param_list):
             for arg in param_list:
                 if not is_register(arg):         # all args must be regs
                     print(f'ERROR: (Line {counter_raw})', errors["1"])
+                    err_lines.append(counter_raw)
                     return True
 
             arg2 = param_list[1]
 
             if is_flags(arg2):                   # FLAGS must be arg1 in mov
                 print(f'ERROR: (Line {counter_raw})', errors['12'])
+                err_lines.append(counter_raw)
                 return True
 
         else:
             for arg in param_list:               # all args must be regs
                 if not is_register(arg):
                     print(f'ERROR: (Line {counter_raw})', errors["1"])
+                    err_lines.append(counter_raw)
                     return True
 
                 if is_flags(arg):                # illegal use of flags
                     print(f'ERROR: (Line {counter_raw})', errors['12'])
+                    err_lines.append(counter_raw)
                     return True
 
         return False
@@ -582,10 +614,12 @@ def has_param_error(instr, param_list):
 
         if not is_register(arg1):               # arg1 must be reg
             print(f'ERROR: (Line {counter_raw})', errors["1"])
+            err_lines.append(counter_raw)
             return True
 
         if is_flags(arg1):                      # illegal use of flags
             print(f'ERROR: (Line {counter_raw})', errors['12'])
+            err_lines.append(counter_raw)
             return True
 
         if has_var_error(arg2):                   # check if var is correct
@@ -605,30 +639,38 @@ def has_param_error(instr, param_list):
 
 
 def err_check(line):
-    global counter_raw, pc, var_flag
+    global counter_raw, pc, var_flag, err_lines
 
     if line == '':
         return False
 
-    if has_symbol_error(line):
-        return True
-
-    line = line.split(' ')
+    line = line.split()
 
     # Var check
     if line[0] == 'var':
-        # counter_raw += 1
 
         if var_flag == 0:
             print(f'ERROR: (Line {counter_raw})', errors['6'])
+            err_lines.append(counter_raw)
             return True
 
         else:
-            if len(line) == 2 and line[1].isalnum():        # Var check
+            if len(line) == 2:        # Var check
                 var_name = line[1]
+
+                if var_name in opcode or var_name in reg:       # Var must not be keyword
+                    print(f'ERROR: (Line {counter_raw})', errors['19'])
+                    err_lines.append(counter_raw)
+                    return True
 
                 if var_name in variables:                   # Redefine var
                     print(f'ERROR: (Line {counter_raw})', errors['10'])
+                    err_lines.append(counter_raw)
+                    return True
+
+                if var_name in labels:                      # Interchange of labels and vars
+                    print(f'ERROR: (Line {counter_raw})', errors['11'])
+                    err_lines.append(counter_raw)
                     return True
 
                 variables[line[1]] = 0
@@ -636,67 +678,107 @@ def err_check(line):
 
             else:
                 print(f'ERROR: (Line {counter_raw})', errors['general'])
+                err_lines.append(counter_raw)
                 return True
 
     if 'var' in line[0]:
         print(f'ERROR: (Line {counter_raw})', errors['general'])
+        err_lines.append(counter_raw)
         return True
-        
 
     var_flag = 0
 
     # Label check
     if ':' in ' '.join(line):
-        # counter_raw += 1
 
-        if ':' not in line[0] or ':' != line[0][-1]:
+        '''
+        if ':' != line[0][-1]:
             print(f'ERROR: (Line {counter_raw})', errors['17'])
+            err_lines.append(counter_raw)
             return True                                    # : at wrong pos
 
         if ':' in ' '.join(line[1:]):
             print(f'ERROR: (Line {counter_raw})', errors['9'])
+            err_lines.append(counter_raw)
             return True                                    # label redefined
 
         if len(line[0]) <= 1:
             print(f'ERROR: (Line {counter_raw})', errors['8'])
+            err_lines.append(counter_raw)
             return True                                    # empty label
+        '''
 
         label_name = line[0][:-1]
 
-        if not label_name.isalnum():                       # Invalid label name
-            print(f'ERROR: (Line {counter_raw})', errors['8'])
+        if label_name in opcode or label_name in reg:       # label must not be keyword
+            print(f'ERROR: (Line {counter_raw})', errors['19'])
+            err_lines.append(counter_raw)
+            labels.pop(label_name)
             return True
 
-        if label_name in labels:
-            print(f'ERROR: (Line {counter_raw})', errors['9'])
-            return True                                   # redefine lables
-
-        if len(line) == 1:                           # Empty label
+        if len(line) == 1:                                   # Empty label
             print(f'ERROR: (Line {counter_raw})', errors['5'])
+            err_lines.append(counter_raw)
+            labels.pop(label_name)
             return True
 
-        labels[label_name] = pc
+        if label_name in labels:                            # Redefine labels
+            print(f'ERROR: (Line{counter_raw})', errors['9'])
+            err_lines.append(counter_raw)
+            labels.pop(label_name)
+            return True
+
         line = line[1:]
 
     if has_length_or_name_error(line):
-        # counter_raw += 1
         return True
 
     if has_param_error(line[0], line[1:]):
         return True
 
     instructions.append(line)
-    # counter_raw += 1
     pc += 1
     return False
 
 
 def main():
-    prog = [i.strip() for i in sys.stdin.read().split('\n')]
-    # print()     # Comment for final run
+    prog = [i.strip().lower() for i in sys.stdin.read().split('\n')]
+    print()     # Comment for final run
 
-    global counter_raw, pc, error_flag
+    global counter_raw, pc, error_flag, err_lines
     error_flag = False
+
+    for line in prog:
+        counter_raw += 1
+        line1 = line.split()
+
+        # Adding Labels
+
+        if line1 != []:
+            if (line1[0] == 'var'):
+                pass
+
+            else:
+                if line1[0].count(':') > 1:
+                    print(f'ERROR: (Line{counter_raw})', errors['17'])
+                    err_lines.append(counter_raw)
+                    error_flag = True
+
+                elif line1[0][-1] == ':':
+                    if len(line1[0]) <= 1:
+                        print(f'ERROR: (Line {counter_raw})', errors['8'])
+                        err_lines.append(counter_raw)
+                        error_flag = True
+
+                    else:
+                        labels[line1[0][:-1]] = pc
+
+                pc += 1
+
+    counter_raw = 0
+    pc = 0
+
+    # Error check
 
     for line in prog:
         counter_raw += 1
@@ -705,23 +787,39 @@ def main():
             error_flag = True
             continue
 
+    # Set var values
+
     for v in variables:
         variables[v] = pc
         pc += 1
 
-    if instructions[-1] != ['hlt']:
+    # Check halt errors
+
+    if instructions:
+        halt_idx_list = [
+            i+1 for i, line in enumerate(prog) if 'hlt' in line and i+1 not in err_lines]
+
+        if instructions[-1] != ['hlt']:
+            print(f'ERROR:', errors['16'])
+            error_flag = True
+
+            if halt_idx_list:
+                for i in halt_idx_list:
+                    print(f'ERROR: (Line {i})', errors['15'])
+                    error_flag = True
+
+        else:
+            if halt_idx_list:
+                for i in halt_idx_list[:-1]:
+                    print(f'ERROR: (Line {i})', errors['15'])
+                    error_flag = True
+
+    else:
         print(f'ERROR:', errors['16'])
         error_flag = True
 
-    else:
-        for line in instructions[:-1]:
-            if 'hlt' in line:
-                idx = prog.index(' '.join(line))
-                print(f'ERROR: (Line {idx+1})', errors['15'])
-                error_flag = True
-
     print_binary(error_flag)
-    # print()
+    print()
 
 
 main()

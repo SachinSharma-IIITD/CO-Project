@@ -37,7 +37,7 @@ def is_register(param):
 
 
 def is_flags(param):
-    if param == 'FLAGS'.lower():
+    if param == 'FLAGS':
         return True
     else:
         return False
@@ -170,7 +170,7 @@ def has_param_error(instr, param_list):
                     err_lines.append(counter_raw)
                     return True
 
-            arg2 = param_list[1]
+            arg2 = param_list[0]
 
             if is_flags(arg2):                   # FLAGS must be arg1 in mov
                 print(f'ERROR: (Line {counter_raw})', errors['12'])
@@ -225,7 +225,7 @@ def has_param_error(instr, param_list):
 
 
 def err_check(line):
-    global counter_raw, pc, var_flag, err_lines, l_arr
+    global counter_raw, pc, var_flag, err_lines
 
     if line == '':
         return False
@@ -273,12 +273,10 @@ def err_check(line):
         return True
 
     var_flag = 0
-    label_name = ''
 
     # Label check
     if ':' in ' '.join(line):
-        
-        ''' 
+
         if ':' != line[0][-1]:
             print(f'ERROR: (Line {counter_raw})', errors['17'])
             err_lines.append(counter_raw)
@@ -293,44 +291,28 @@ def err_check(line):
             print(f'ERROR: (Line {counter_raw})', errors['8'])
             err_lines.append(counter_raw)
             return True                                    # empty label
-        '''
-        
+
         label_name = line[0][:-1]
 
         if label_name in opcode or label_name in reg:       # label must not be keyword
             print(f'ERROR: (Line {counter_raw})', errors['19'])
             err_lines.append(counter_raw)
-            l_arr.remove(label_name)
+            labels.pop(label_name)
             return True
 
-        if len(line) == 1:                                   # Empty label
+        if len(line) == 1:                           # Empty label
             print(f'ERROR: (Line {counter_raw})', errors['5'])
             err_lines.append(counter_raw)
-            l_arr.remove(label_name)
+            labels.pop(label_name)
             return True
-
-        if label_name in l_arr:                            # Redefine labels
-            if label_name not in labels:
-                labels[label_name] = 0
-            
-            else:
-                print(f'ERROR: (Line{counter_raw})', errors['9'])
-                err_lines.append(counter_raw)
-                l_arr.remove(label_name)
-                return True
 
         line = line[1:]
 
     if has_length_or_name_error(line):
-        labels.pop(label_name)
         return True
 
     if has_param_error(line[0], line[1:]):
-        labels.pop(label_name)
         return True
-
-    if label_name:
-        labels[label_name] = pc
 
     instructions.append(line)
     pc += 1
@@ -341,7 +323,7 @@ def main():
     prog = [i.strip().lower() for i in sys.stdin.read().split('\n')]
     print()     # Comment for final run
 
-    global counter_raw, pc, error_flag, err_lines, l_arr
+    global counter_raw, pc, error_flag, err_lines
     error_flag = False
 
     for line in prog:
@@ -355,7 +337,12 @@ def main():
                 pass
 
             else:
-                if line1[0].count(':') > 1:
+                if line1[0][:-1] in labels:
+                    print(f'ERROR: (Line{counter_raw})', errors['9'])
+                    err_lines.append(counter_raw)
+                    error_flag = True
+
+                elif line1[0].count(':') > 1:
                     print(f'ERROR: (Line{counter_raw})', errors['17'])
                     err_lines.append(counter_raw)
                     error_flag = True
@@ -367,9 +354,9 @@ def main():
                         error_flag = True
 
                     else:
-                        l_arr.append(line1[0][:-1])
+                        labels[line1[0][:-1]] = pc
 
-                #pc += 1
+                pc += 1
 
     counter_raw = 0
     pc = 0
