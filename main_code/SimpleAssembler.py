@@ -1,5 +1,6 @@
 import sys
 
+
 opcode = {
     'var': {'type': 'var'},
     'sub': {'opcode': '10001',
@@ -41,6 +42,7 @@ opcode = {
     'hlt': {'opcode': '01010',
             'type': 'F'}
 }
+
 
 reg = {
     'r0':    {'addr': '000',
@@ -417,6 +419,7 @@ def print_binary(error_flag):
 
 # ************************** Main ********************************************************
 
+
 def has_length_or_name_error(line):
     if line[0] in opcode:
         instr = line[0]
@@ -691,7 +694,6 @@ def err_check(line):
     # Label check
     if ':' in ' '.join(line):
 
-        '''
         if ':' != line[0][-1]:
             print(f'ERROR: (Line {counter_raw})', errors['17'])
             err_lines.append(counter_raw)
@@ -706,7 +708,6 @@ def err_check(line):
             print(f'ERROR: (Line {counter_raw})', errors['8'])
             err_lines.append(counter_raw)
             return True                                    # empty label
-        '''
 
         label_name = line[0][:-1]
 
@@ -716,14 +717,8 @@ def err_check(line):
             labels.pop(label_name)
             return True
 
-        if len(line) == 1:                                   # Empty label
+        if len(line) == 1:                           # Empty label
             print(f'ERROR: (Line {counter_raw})', errors['5'])
-            err_lines.append(counter_raw)
-            labels.pop(label_name)
-            return True
-
-        if label_name in labels:                            # Redefine labels
-            print(f'ERROR: (Line{counter_raw})', errors['9'])
             err_lines.append(counter_raw)
             labels.pop(label_name)
             return True
@@ -759,7 +754,12 @@ def main():
                 pass
 
             else:
-                if line1[0].count(':') > 1:
+                if line1[0][:-1] in labels:
+                    print(f'ERROR: (Line{counter_raw})', errors['9'])
+                    err_lines.append(counter_raw)
+                    error_flag = True
+
+                elif line1[0].count(':') > 1:
                     print(f'ERROR: (Line{counter_raw})', errors['17'])
                     err_lines.append(counter_raw)
                     error_flag = True
