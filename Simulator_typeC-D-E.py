@@ -13,10 +13,16 @@ def execute_c(reg1, reg2):
     elif instr=='cmp':
         if(reg_data[reg1]==reg_data[reg2]):
             reg_data['flags'][-1]='1'
+            reg_data['flags'][-2]='0'
+            reg_data['flags'][-3]='0'
         elif(reg_data[reg1]>reg_data[reg2]):
             reg_data['flags'][-2]='1'
+            reg_data['flags'][-1]='0'
+            reg_data['flags'][-3]='0'
         elif(reg_data[reg1]<reg_data[reg2]):
             reg_data['flags'][-3]='1'
+            reg_data['flags'][-2]='0'
+            reg_data['flags'][-1]='0'
     return True
 
 def execute_d(memory_addr,reg1):
