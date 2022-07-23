@@ -295,20 +295,19 @@ def execute_e(instr, label):
     global pc
 
     if instr == 'jmp':
-        pc = label
-    
+        pc = label-1
 
     elif instr == 'jlt':
-        if (reg_data['flags'][less_flag_pos] == '1'):
-            pc = label
+        if (reg_data['flags'][less_flag_pos] == 1):
+            pc = label-1
 
     elif instr == 'jgt':
-        if (reg_data['flags'][greater_flag_pos] == '1'):
-            pc = label
+        if (reg_data['flags'][greater_flag_pos] == 1):
+            pc = label-1
 
     elif instr == 'je':
-        if (reg_data['flags'][equal_flag_pos] == '1'):
-            pc = label
+        if (reg_data['flags'][equal_flag_pos] == 1):
+            pc = label-1
         
     reset_flags()
     return True
@@ -316,8 +315,12 @@ def execute_e(instr, label):
 
 data = sys.stdin.read().split()
 
-for line in data:
+while True:
+
+    if halted:
+        break
     
+    line = data[pc]
     instr = opcode[line[:5]]['key']
     encode_type = opcode[line[:5]]['type']
     # print(encode_type)
