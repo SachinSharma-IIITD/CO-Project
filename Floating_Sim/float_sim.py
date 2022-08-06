@@ -143,19 +143,17 @@ def convert_float_to_ieee(num: float):
     return ans
 
 
-def check_if_float(src1: str, src2: str) -> int:
-    if '.' in src1 or '.' in src2:
-        if '.' in src1:
-            src1 = convert_float_to_ieee(float(src1))
-            src1 = int(src1, 2)
+def check_if_float(src1: str, src2: str) -> tuple:
+    if '.' in src1:
+        src1 = convert_float_to_ieee(float(src1))
+        src1 = int(src1, 2)
 
-        if '.' in src2:
-            src2 = convert_float_to_ieee(float(src2))
-            src2 = int(src2, 2)
+    if '.' in src2:
+        src2 = convert_float_to_ieee(float(src2))
+        src2 = int(src2, 2)
 
-    else:
-        src1 = int(src1)
-        src2 = int(src2)
+    src1 = int(src1)
+    src2 = int(src2)
 
     return src1, src2
 
@@ -192,11 +190,14 @@ def Addition_Float(reg1, reg2, reg3):
     src2 = str(reg_data[reg2])
 
     if '.' not in src1:
-        src1 = int(format(int(src1), '016b')[-8:])
+        src1 = convert_ieee_to_float(format(int(src1), '016b')[-8:])
     
     if '.' not in src2:
-        src2 = int(format(int(src2), '016b')[-8:])
+        src2 = convert_ieee_to_float(format(int(src2), '016b')[-8:])
 
+    src1 = float(src1)
+    src2 = float(src2)
+    
     if src1 + src2 > convert_ieee_to_float('11111111'):
         set_overflow_flag()
         reg_data[reg3] = convert_ieee_to_float('11111111')
@@ -226,10 +227,13 @@ def Subtraction_Float(reg1, reg2, reg3):
     src2 = str(reg_data[reg2])
 
     if '.' not in src1:
-        src1 = int(format(int(src1), '016b')[-8:])
+        src1 = convert_ieee_to_float(format(int(src1), '016b')[-8:])
     
     if '.' not in src2:
-        src2 = int(format(int(src2), '016b')[-8:])
+        src2 = convert_ieee_to_float(format(int(src2), '016b')[-8:])
+
+    src1 = float(src1)
+    src2 = float(src2)
 
     if src2 > src1:
         set_overflow_flag()
@@ -550,3 +554,5 @@ for line in data:
 for i in range(pc, 256):
     mem, trash = check_if_float(str(memory[i]), '0')
     print(format(mem, "016b"))
+
+
