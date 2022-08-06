@@ -121,7 +121,7 @@ err_lines = []
 # ************************** Converter funcs ************************************************
 
 
-def convert_float(num: float):
+def convert_ieee(num: float):
     num_str = str(num)
 
     if '.' not in num_str:
@@ -187,7 +187,7 @@ def converter(num1, A=10, B=2):
 
 
 def Addition_Float(given_list: list):
-    opcode1 = opcode['add']['opcode']
+    opcode1 = opcode['addf']['opcode']
     unused = '00'
     reg1 = reg[given_list[0]]['addr']
     reg2 = reg[given_list[1]]['addr']
@@ -197,7 +197,7 @@ def Addition_Float(given_list: list):
 
 
 def Subtraction_Float(given_list: list):
-    opcode1 = opcode['add']['opcode']
+    opcode1 = opcode['subf']['opcode']
     unused = '00'
     reg1 = reg[given_list[0]]['addr']
     reg2 = reg[given_list[1]]['addr']
@@ -210,7 +210,7 @@ def MoveImmediate_Float(given_list: list):
     opcode1 = opcode['movf']['opcode']
     reg1 = reg[given_list[0]]['addr']
     imm: float = (given_list[1][1:])
-    new = convert_float(imm)    # Change to convert float
+    new = convert_ieee(imm)    # Change to convert float
     
     if new == False:
         return False
@@ -620,15 +620,24 @@ def has_imm_error(instr: str, arg: str):
     else:
         if '.' not in imm:
             print('error')
+            err_lines.append(counter_raw)
+            return True
 
         if imm.count('.') > 1:
             print('error')
+            err_lines.append(counter_raw)
+            return True
 
-        for i in range(len(imm)):
-            if not imm[i].isdigit() and imm[i] != '.':                # imm must be int
-                print('error')
-                err_lines.append(counter_raw)
-                return True
+        a, b = imm.split('.')
+        if not a or not b:
+            print('error')
+            err_lines.append(counter_raw)
+            return True
+            
+        if not a.isdigit() or not b.isdigit():                # imm must be int
+            print('error')
+            err_lines.append(counter_raw)
+            return True
 
     return False
 
