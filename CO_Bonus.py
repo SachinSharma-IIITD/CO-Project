@@ -9,6 +9,8 @@
 
 import math
 
+print("\nQuestion1, Type-1 starts here...\n")
+
 size_of_memory={'kb':(2**10),'kB':(2**13),'Mb':(2**20),'MB':(2**23),'Gb':(2**30),'GB':(2**33),'Tb':(2**40),'TB':(2**43)}
 addressing_memory={'bit':1,'nibble':4,'byte':8}
 
@@ -53,7 +55,7 @@ def Q1_part4(x,y,space,addressing):
 def Q1_part5(y):
     return int(2**y)
 
-
+print("\n\nThe Output for the given queries is as given below!\n")
 print(f'\nMinimum bits are needed to represent an address in this architecture: {Q1_part1(space,addressing)}')
 print(f'\nNumber of bits needed by opcode: {Q1_part2(length_of_instr, length_of_reg,space,addressing)}')
 print(f'\nNumber of filler bits in Instruction type 2: {Q1_part3(length_of_instr, length_of_reg,space,addressing)}')
@@ -62,8 +64,9 @@ print(f'\nMaximum number of registers this ISA can support: {Q1_part5(length_of_
 
 
 #SYSTEM ENHANCEMENT
+print("\n\nQuestion2, Type-1 starts here...\n")
 enhanced=input("Please enter how'd you like to enhance your system (bit/nibble/byte/word): ").lower()
-
+print("\n")
 def Q2_type1(x,y,space,addressing):
     temp0=Q1_part1(space,addressing)
     temp=space.split()
@@ -107,11 +110,12 @@ print(Q2_type1(support,enhanced,space,addressing))
 
 
 #TYPE-2
-
+print("\n\nQuestion-2, Type-2 starts here...\n")
 cpu_bits=int(input("Please enter the number of bits supported by the CPU: "))
 addr_pins=int(input("Please enter the total number of address pins: "))
 addressing_type=input("Please enter how the memory is addressed: ").lower()
 
+print("\n\nBreakup of Size of Memory:->\n")
 def Q2_type2(x,y,z):
     if(z in addressing_memory):
         res=(2**y)*addressing_memory[z]
@@ -124,7 +128,7 @@ def Q2_type2(x,y,z):
         print(f'Size of memory in kB: {float(answer3)} kB')
         print(f'Size of memory in MB: {float(answer4)} MB')
         print(f'Size of memory in GB: {float(answer2)} GB')
-        return f'Size of memory in TB: {float(answer5)} TB'
+        return f'Size of memory in TB: {float(answer5)} TB\n'
     else:
         res=(2**y)*x
         answer1=res/(2**3)
@@ -136,6 +140,6 @@ def Q2_type2(x,y,z):
         print(f'Size of memory in kB: {float(answer3)} kB')
         print(f'Size of memory in MB: {float(answer4)} MB')
         print(f'Size of memory in GB: {float(answer2)} GB')
-        return f'Size of memory in TB: {float(answer5)} TB'
+        return f'Size of memory in TB: {float(answer5)} TB\n'
     
 print(Q2_type2(cpu_bits,addr_pins,addressing_type))
