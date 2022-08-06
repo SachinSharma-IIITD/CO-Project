@@ -85,7 +85,6 @@ memory = [0 for i in range(256)]
 
 halted = False
 pc = 0
-cycle = 0
 
 overflow_flag_pos = -4
 less_flag_pos = -3
@@ -144,6 +143,23 @@ def convert_float_to_ieee(num: float):
     return ans
 
 
+def check_if_float(src1: str, src2: str) -> int:
+    if '.' in src1 or '.' in src2:
+        if '.' in src1:
+            src1 = convert_float_to_ieee(float(src1))
+            src1 = int(src1, 2)
+
+        if '.' in src2:
+            src2 = convert_float_to_ieee(float(src2))
+            src2 = int(src2, 2)
+
+    else:
+        src1 = int(src1)
+        src2 = int(src2)
+
+    return src1, src2
+
+
 def reset_flags():
     reg_data['flags'][-1] = 0
     reg_data['flags'][-2] = 0
@@ -172,12 +188,16 @@ def set_equal_flag():
 
 
 def Addition_Float(reg1, reg2, reg3):
-    global reg_data
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
 
-    src1: float = reg_data[reg1]
-    src2: float = reg_data[reg2]
+    if '.' not in src1:
+        src1 = int(format(int(src1), '016b')[-8:])
+    
+    if '.' not in src2:
+        src2 = int(format(int(src2), '016b')[-8:])
 
-    if src1 + src2 > 63:
+    if src1 + src2 > convert_ieee_to_float('11111111'):
         set_overflow_flag()
         reg_data[reg3] = convert_ieee_to_float('11111111')
 
@@ -187,10 +207,10 @@ def Addition_Float(reg1, reg2, reg3):
 
 
 def Addition(reg1, reg2, reg3):
-    global reg_data
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
 
-    src1 = reg_data[reg1]
-    src2 = reg_data[reg2]
+    src1, src2 = check_if_float(src1, src2)
 
     if src1 + src2 > int(pow(2, 16))-1:
         set_overflow_flag()
@@ -202,8 +222,14 @@ def Addition(reg1, reg2, reg3):
 
 
 def Subtraction_Float(reg1, reg2, reg3):
-    src1 = reg_data[reg1]
-    src2 = reg_data[reg2]
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
+
+    if '.' not in src1:
+        src1 = int(format(int(src1), '016b')[-8:])
+    
+    if '.' not in src2:
+        src2 = int(format(int(src2), '016b')[-8:])
 
     if src2 > src1:
         set_overflow_flag()
@@ -215,8 +241,10 @@ def Subtraction_Float(reg1, reg2, reg3):
 
 
 def Subtraction(reg1, reg2, reg3):
-    src1 = reg_data[reg1]
-    src2 = reg_data[reg2]
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
+
+    src1, src2 = check_if_float(src1, src2)
 
     if src2 > src1:
         set_overflow_flag()
@@ -228,8 +256,10 @@ def Subtraction(reg1, reg2, reg3):
 
 
 def Multiply(reg1, reg2, reg3):
-    src1 = reg_data[reg1]
-    src2 = reg_data[reg2]
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
+
+    src1, src2 = check_if_float(src1, src2)
 
     if src1 * src2 > int(pow(2, 16))-1:
         set_overflow_flag()
@@ -241,17 +271,32 @@ def Multiply(reg1, reg2, reg3):
 
 
 def Xor(reg1, reg2, reg3):
-    reg_data[reg3] = reg_data[reg1] ^ reg_data[reg2]
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
+
+    src1, src2 = check_if_float(src1, src2)
+
+    reg_data[reg3] = src1 ^ src2
     reset_flags()
 
 
 def Or(reg1, reg2, reg3):
-    reg_data[reg3] = reg_data[reg1] | reg_data[reg2]
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
+
+    src1, src2 = check_if_float(src1, src2)
+
+    reg_data[reg3] = src1 | src2
     reset_flags()
 
 
 def And(reg1, reg2, reg3):
-    reg_data[reg3] = reg_data[reg1] & reg_data[reg2]
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
+
+    src1, src2 = check_if_float(src1, src2)
+
+    reg_data[reg3] = src1 & src2
     reset_flags()
 
 
@@ -266,12 +311,20 @@ def Movi(reg, imm: str):
 
 
 def LeftShift(reg, imm: str):
-    reg_data[reg] <<= int(imm, 2)
+    src1 = str(reg_data[reg])
+
+    src1, src2 = check_if_float(src1, '0')
+
+    reg_data[reg] = src1 << int(imm, 2)
     reset_flags()
 
 
 def RightShift(reg, imm: str):
-    reg_data[reg] >>= int(imm, 2)
+    src1 = str(reg_data[reg])
+
+    src1, src2 = check_if_float(src1, '0')
+
+    reg_data[reg]  = src1 >> int(imm, 2)
     reset_flags()
 
 
@@ -287,16 +340,25 @@ def Movr(reg1, reg2):
 
 def Div(reg1, reg2):
     reset_flags()
+    
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
 
-    if reg_data[reg2] != 0:
-        reg_data['r0'] = reg_data[reg1]//reg_data[reg2]
-        reg_data['r1'] = reg_data[reg1] % reg_data[reg2]
+    src1, src2 = check_if_float(src1, src2)
+
+    if src2 != 0:
+        reg_data['r0'] = src1 // src2
+        reg_data['r1'] = src1 % src2
     else:
         pass
 
 
 def Not(reg1, reg2):
-    a = format(reg_data[reg1], '016b')
+    src1 = str(reg_data[reg1])
+
+    src1, src2 = check_if_float(src1, 0)
+
+    a = format(src1, '016b')
     st = ''
     for i in a:
         if i == '0':
@@ -309,13 +371,18 @@ def Not(reg1, reg2):
 
 
 def Cmp(reg1, reg2):
-    if(reg_data[reg1] == reg_data[reg2]):
+    src1 = str(reg_data[reg1])
+    src2 = str(reg_data[reg2])
+
+    src1, src2 = check_if_float(src1, src2)
+
+    if(src1 == src2):
         set_equal_flag()
 
-    elif(reg_data[reg1] > reg_data[reg2]):
+    elif(src1 > src2):
         set_greater_flag()
 
-    elif(reg_data[reg1] < reg_data[reg2]):
+    elif(src1 < src2):
         set_less_flag()
 
 
@@ -466,7 +533,10 @@ while True:
     print(format(pc, '08b'), end=' ')
 
     for i in range(7):
-        print(format(reg_data[f'r{i}'], "016b"), end=' ')
+        reg = str(reg_data[f'r{i}'])
+        reg, trash = check_if_float(reg, '0')
+
+        print(format(reg, "016b"), end=' ')
 
     print(''.join([str(i) for i in reg_data['flags']]))
 
@@ -478,6 +548,5 @@ for line in data:
     print(line)
 
 for i in range(pc, 256):
-    print(format(memory[i], "016b"))
-
-r1 = 5.5
+    mem, trash = check_if_float(str(memory[i]), '0')
+    print(format(mem, "016b"))
