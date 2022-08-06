@@ -190,10 +190,10 @@ def Addition_Float(reg1, reg2, reg3):
     src2 = str(reg_data[reg2])
 
     if '.' not in src1:
-        src1 = convert_ieee_to_float(format(int(src1), '016b')[-8:])
+        src1 = int(format(int(src1), '016b')[-8:])
     
     if '.' not in src2:
-        src2 = convert_ieee_to_float(format(int(src2), '016b')[-8:])
+        src2 = int(format(int(src2), '016b')[-8:])
 
     src1 = float(src1)
     src2 = float(src2)
@@ -227,10 +227,10 @@ def Subtraction_Float(reg1, reg2, reg3):
     src2 = str(reg_data[reg2])
 
     if '.' not in src1:
-        src1 = convert_ieee_to_float(format(int(src1), '016b')[-8:])
+        src1 = int(format(int(src1), '016b')[-8:])
     
     if '.' not in src2:
-        src2 = convert_ieee_to_float(format(int(src2), '016b')[-8:])
+        src2 = int(format(int(src2), '016b')[-8:])
 
     src1 = float(src1)
     src2 = float(src2)

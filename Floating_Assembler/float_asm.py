@@ -135,7 +135,7 @@ def convert_ieee(num: float):
     iter = 1
     while (True):
         if iter > (5 - (len(a) - 3)):
-            print('error')
+            print('Invalid number for IEEE format!')
             return False
 
         q = c * 2
@@ -619,23 +619,23 @@ def has_imm_error(instr: str, arg: str):
 
     else:
         if '.' not in imm:
-            print('error')
+            print('Imm not a float value!')
             err_lines.append(counter_raw)
             return True
 
         if imm.count('.') > 1:
-            print('error')
+            print('Invalid Imm')
             err_lines.append(counter_raw)
             return True
 
         a, b = imm.split('.')
         if not a or not b:
-            print('error')
+            print('Invalid Imm')
             err_lines.append(counter_raw)
             return True
             
         if not a.isdigit() or not b.isdigit():                # imm must be int
-            print('error')
+            print('Invalid Imm')
             err_lines.append(counter_raw)
             return True
 
